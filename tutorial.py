@@ -3,7 +3,9 @@ import time
 import mediapipe as mp
 import pandas as pd
 import os
-
+from tensorflow import keras
+from keras import layers
+import numpy as np
 
 cap = cv2.VideoCapture(0)
 
@@ -24,9 +26,6 @@ while True:
                 h,w,c = img.shape
                 cx,cy = int(lm.x *w), int(lm.y*h)
                 cv2.circle(img,(cx,cy),3,(255,0,255),cv2.FILLED)
-                if(id not in range(0,2) and id !=5 and id !=9 and id !=13 and id!=17):
-                    cv2.putText(img,f"x:{cx},y{cy}",(cx,cy),cv2.FONT_HERSHEY_SIMPLEX,0.5,(0,255,0),1)
-                    print(f"id:{id}, x:{cx},y:{cy}")
                 landmarks.append([cx,cy])
             mpDraw.draw_landmarks(img, handLms,mpHands.HAND_CONNECTIONS)
     cTime = time.time()
@@ -46,17 +45,37 @@ while True:
             print(type(value))
         savePose = {"value":value,"landmarks":[landmarks]}
         print(len(landmarks))
-        if(os.path.exists("files/saved_data.pickle")):
-            df = pd.read_pickle("files/saved_data.pickle"
-            )
-            print(df.head)
-            df2 = pd.DataFrame(savePose)
-            print(df2.head)
-            df = pd.concat([df,df2],ignore_index=True)
-            df.to_pickle('files/saved_data.pickle')
-        else:
-            df = pd.DataFrame(savePose)
-            print(df.head())
-            df.to_pickle('files/saved_data.pickle')
+
+
+        model = keras.Sequential(name="HandPoseChecker")
+        model.add(layers.Dense(100,activation="softmax", name="layer1"))
+        model.add(layers.Flatten())
+        model.add(layers.Dense(26,activation="relu",name="layer2"))
+        #model.add(keras.layers.GlobalAveragePooling1D())
+        model.add(layers.Dense(1,name="layer3"))
+        model.compile(optimizer = 'Adadelta',
+        loss='MeanSquaredError',
+        metrics =['accuracy'])
+        model.load_weights("models/model.ckpt")
+
+        print(np.asarray(landmarks).shape)
+        test = np.asarray([landmarks])
+        y_pred = model.predict(test)
+        print(y_pred)
+        print(value)
+
+
+        # if(os.path.exists("files/saved_data.pickle")):
+        #     df = pd.read_pickle("files/saved_data.pickle"
+        #     )
+        #     print(df.head)
+        #     df2 = pd.DataFrame(savePose)
+        #     print(df2.head)
+        #     df = pd.concat([df,df2],ignore_index=True)
+        #     df.to_pickle('files/saved_data.pickle')
+        # else:
+        #     df = pd.DataFrame(savePose)
+        #     print(df.head())
+        #     df.to_pickle('files/saved_data.pickle')
         
-        
+
