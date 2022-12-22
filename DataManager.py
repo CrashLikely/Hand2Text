@@ -73,7 +73,7 @@ class DataManager:
         return self.Scale(value)
     
     def CreateValueArray(self,value):
-        value = int(value*26)
+        value = round(value*26)
         value = value - 1
         array = np.zeros([26])
         array[value]=1.0
@@ -127,7 +127,6 @@ class DataManager:
     def GetGreatestIndex(self,prediction):
         greatest = -1000
         index = 0
-        print(prediction[0])
         for i in range(prediction.size):
             if(prediction[i] > greatest):
                 greatest = prediction[i]
@@ -137,7 +136,7 @@ class DataManager:
 
 if __name__=="__main__":
     dc = DataManager("files/validation_data.pickle")
-
+    print(dc.GetGreatestIndex(dc.CreateValueArray(0.5769230769230769)))
     #dc.CreateNumValues()
     #dc.Save()
     #dc.ScaleDown()

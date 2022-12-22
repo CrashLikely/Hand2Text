@@ -58,7 +58,7 @@ class HandChecker:
             self.data_landmarks,
             self.data_values,
             batch_size=50,
-            epochs=750,
+            epochs=450,
             validation_data=(self.vald_landmarks,self.vald_values),
             callbacks=[self.model_checkpoint_callback]
         )
@@ -101,8 +101,20 @@ class HandChecker:
             else:
                 false[true_index]+=1
         alphabet=["A","B","C","D","E","F","G","H","I","J","K","L","M","N","O","P","Q","R","S","T","U","V","W","X","Y","Z"]
+        data_true={}
+        data_false={}
         for i in range(len(alphabet)):
             print(f"{alphabet[i]}-- false:{false[i]} true:{true[i]}")
+            data_true[f"{alphabet[i]}"]=true[i]
+            data_false[f"{alphabet[i]}"]=false[i]
+        true_labels = list(data_true.keys())
+        false_labels = list(data_false.keys())
+        true_values = list(data_true.values())
+        false_values = list(data_false.values())
+        plt.bar(true_labels,true_values,color="green",width=0.8)
+        plt.bar(false_labels,false_values,color="red",width=0.4)
+        plt.show()
+
         
     
 if __name__=="__main__":
@@ -110,7 +122,7 @@ if __name__=="__main__":
     #
     #HC.GatherTrainingData()
     HC.CreateModel()
-    #HC.TrainModel()
+    HC.TrainModel()
     HC.LoadModel()
     HC.ValidateModel()
 
