@@ -5,11 +5,11 @@ from keras import layers
 import numpy as np
 import matplotlib.pyplot as plt
 from DataManager import DataManager
-
+from keras.optimizers import SGD
 
 class HandChecker:
-    def __init__(self,path,optimizer,loss,metrics):
-        self.optimizer = optimizer
+    def __init__(self,path,learning,loss,metrics):
+        self.optimizer = SGD(lr=learning)
         self.loss = loss
         self.metrics = metrics
         self.DM = DataManager(path)
@@ -17,7 +17,6 @@ class HandChecker:
     
     def GatherTrainingData(self):
         self.data_values = self.DM.GetValues()
-        self.data_values = keras.utils.to_categorical(self.data_values,26)
         self.data_landmarks = self.DM.GetLandmarks()
         print(type(self.data_values[0]))
         print(type(self.data_landmarks[0][0]))
@@ -31,10 +30,9 @@ class HandChecker:
     def CreateModel(self):
         self.GatherTrainingData()
         self.model = keras.Sequential(name="HandPoseChecker")
-        self.model.add(keras.layers.Dense(100,activation="relu",name="layer1",input_shape=(self.input_shape)))
+        self.model.add(keras.layers.Dense(42,activation="relu",name="layer1",input_shape=(self.input_shape)))
         self.model.add(keras.layers.Flatten())
-        self.model.add(keras.layers.Dense(26,activation="relu",name="layer2"))
-        self.model.add(keras.layers.Dense(self.output_shape,name="layer3"))
+        self.model.add(keras.layers.Dense(self.output_shape,activation="sigmoid",name="layer3"))
         self.model.compile(optimizer = self.optimizer,
             loss=self.loss,  
             metrics = [self.metrics])
@@ -63,12 +61,18 @@ class HandChecker:
         plt.ylabel('accuracy')
         plt.xlabel('epoch')
         plt.show()
+        plt.plot(history.history['loss'])
+        plt.title('model loss')
+        plt.ylabel('loss')
+        plt.xlabel('epoch')
+        plt.show()
 
     def LoadModel(self):
         self.model.load_weights(self.model_loc)
         return self.model
 if __name__=="__main__":
-    HC = HandChecker("files/saved_data.pickle","Adam","categorical_crossentropy","categorical_accuracy")
+    HC = HandChecker("files/saved_data.pickle",0.00001,"categorical_crossentropy","categorical_accuracy")
+    #HC.GatherTrainingData()
     HC.CreateModel()
     HC.TrainModel()
 

@@ -6,7 +6,7 @@ from DataManager import DataManager
 class DataCollector:
     def __init__(self):
 
-        self.HC = HandChecker("files/saved_data.pickle","Adam","categorical_crossentropy",["categorical_accuracy"])
+        self.HC = HandChecker("files/saved_data.pickle",.00001,"categorical_crossentropy",["categorical_accuracy"])
         self.HC.CreateModel()
         self.DM = DataManager("files/saved_data.pickle")
 
@@ -120,6 +120,7 @@ class DataCollector:
                 value = self.DM.ProcessValue(savePose["value"])
                 print(y_pred)
                 print(value)
+                print(self.DM.GetGreatest(y_pred))
 
 if __name__=="__main__":
     DC = DataCollector()
