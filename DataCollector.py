@@ -6,9 +6,7 @@ from DataManager import DataManager
 class DataCollector:
     def __init__(self):
 
-        self.HC = HandChecker("files/saved_data.pickle",.00001,"categorical_crossentropy",["categorical_accuracy"])
-        self.HC.CreateModel()
-        self.DM = DataManager("files/saved_data.pickle")
+        
 
         self.cap = cv2.VideoCapture(0)
         self.mpHands = mp.solutions.hands
@@ -24,9 +22,9 @@ class DataCollector:
             for handLms in results.multi_hand_landmarks:
                 for id, lm in enumerate(handLms.landmark):
                     h,w,c = img.shape
-                    cx,cy = int(lm.x *w), int(lm.y * h)
+                    cx,cy,cz = int(lm.x *w), int(lm.y * h), int(lm.z*w)
                     cv2.circle(img,(cx,cy),3,(255,0,255),cv2.FILLED)
-                    landmarks.append([cx,cy])
+                    landmarks.append([cx,cy,cz])
                 self.mpDraw.draw_landmarks(img,handLms,self.mpHands.HAND_CONNECTIONS)
         cv2.imshow("Image",img)
         k = cv2.waitKey(0)
@@ -59,9 +57,9 @@ class DataCollector:
                         for handLms in results.multi_hand_landmarks:
                             for id, lm in enumerate(handLms.landmark):
                                 h,w,c = img.shape
-                                cx,cy = int(lm.x *w), int(lm.y *h)
+                                cx,cy,cz = int(lm.x *w), int(lm.y *h), int(lm.z*w)
                                 cv2.circle(img,(cx,cy),3,(255,0,255),cv2.FILLED)
-                                landmarks.append([cx,cy])
+                                landmarks.append([cx,cy,cz])
                             self.mpDraw.draw_landmarks(img,handLms,self.mpHands.HAND_CONNECTIONS)
             cv2.imshow("Image",img)
             k = cv2.waitKey(0)
@@ -89,29 +87,36 @@ class DataCollector:
                     print(df.head())
                     df.to_pickle('files/saved_data.pickle')
         
-    def CollectDataFromCamera(self):
+    def CollectDataFromCamera(self,path):
         '''
         Need to write this one, use this class instead of tutorial.py for collecting data
         '''
         while True:
             savePose = self.Core()
-            if(os.path.exists("files/saved_data.pickle")):
-                df = pd.read_pickle("files/saved_data.pickle")
-                print(df.head)
-                df2 = pd.DataFrame(savePose)
-                print(df2.head)
-                df = pd.concat([df,df2],ignore_index=True)
-                df.to_pickle('files/saved_data.pickle')
-            else:
-                df = pd.DataFrame(savePose)
-                print(df.head())
-                df.to_pickle('files/saved_data.pickle')
+            if(savePose != "None"):
+                if(os.path.exists(path)):
+                    df = pd.read_pickle(path)
+                    print(df.head)
+                    df2 = pd.DataFrame(savePose)
+                    print(df2.head)
+                    df = pd.concat([df,df2],ignore_index=True)
+                    df.to_pickle(path)
+                else:
+                    try:
+                        df = pd.DataFrame(savePose)
+                    except ValueError:
+                        print(type(savePose),savePose)
+                    print(df.head())
+                    df.to_pickle(path)
 
 
     def TestData(self):
         '''
         Immediate testing of the data 
         '''
+        self.HC = HandChecker("files/saved_data.pickle",.00001,"categorical_crossentropy","categorical_accuracy")
+        self.HC.CreateModel()
+        self.DM = DataManager("files/saved_data.pickle")
         while True:
             savePose = self.Core()
             if(savePose != "None"):
@@ -125,3 +130,4 @@ class DataCollector:
 if __name__=="__main__":
     DC = DataCollector()
     DC.TestData()
+    #DC.CollectDataFromCamera("files/validation_data.pickle")

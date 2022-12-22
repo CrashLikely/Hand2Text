@@ -13,13 +13,14 @@ class HandChecker:
         self.loss = loss
         self.metrics = metrics
         self.DM = DataManager(path)
-        self.DM.ScaleDown()
+        self.valdDM = DataManager("files/validation_data.pickle")
+        
     
     def GatherTrainingData(self):
         self.data_values = self.DM.GetValues()
         self.data_landmarks = self.DM.GetLandmarks()
-        print(type(self.data_values[0]))
-        print(type(self.data_landmarks[0][0]))
+        print(self.data_values[0])
+        print(self.data_landmarks[0])
         self.input_shape = self.data_landmarks.shape[1:]
         print(self.data_landmarks.shape)
         print(self.input_shape)
@@ -27,10 +28,15 @@ class HandChecker:
         print(self.data_values.shape)
         print(self.output_shape)
 
+    def GatherValidationData(self):
+        self.vald_values = self.valdDM.GetValues()
+        self.vald_landmarks = self.valdDM.GetLandmarks()
+
     def CreateModel(self):
         self.GatherTrainingData()
+        self.GatherValidationData()
         self.model = keras.Sequential(name="HandPoseChecker")
-        self.model.add(keras.layers.Dense(42,activation="relu",name="layer1",input_shape=(self.input_shape)))
+        self.model.add(keras.layers.Dense(63,activation="relu",name="layer1",input_shape=(self.input_shape)))
         self.model.add(keras.layers.Flatten())
         self.model.add(keras.layers.Dense(self.output_shape,activation="sigmoid",name="layer3"))
         self.model.compile(optimizer = self.optimizer,
@@ -40,7 +46,7 @@ class HandChecker:
         self.model_checkpoint_callback = keras.callbacks.ModelCheckpoint(
             filepath = self.model_loc,
             save_weights_only = True,
-            monitor = self.metrics,
+            monitor = "val_"+self.metrics,
             mode = 'max',
             save_best_only=True)
         print(type(self.model_checkpoint_callback))
@@ -52,11 +58,13 @@ class HandChecker:
             self.data_landmarks,
             self.data_values,
             batch_size=50,
-            epochs=500,
+            epochs=750,
+            validation_data=(self.vald_landmarks,self.vald_values),
             callbacks=[self.model_checkpoint_callback]
         )
         self.model.summary()
         plt.plot(history.history['categorical_accuracy'])
+        plt.plot(history.history['val_categorical_accuracy'])
         plt.title('model accuracy')
         plt.ylabel('accuracy')
         plt.xlabel('epoch')
@@ -70,8 +78,16 @@ class HandChecker:
     def LoadModel(self):
         self.model.load_weights(self.model_loc)
         return self.model
+
+    def ValidateModel(self):
+        '''
+        This method tests the model on the validation dataset and keeps track of bias in guesses. 
+        Should also keep track of Correct Guesses vs False Ones and at the indexes that those occur (to see if it is better at guess some rather than others).
+        '''
+    
 if __name__=="__main__":
-    HC = HandChecker("files/saved_data.pickle",0.00001,"categorical_crossentropy","categorical_accuracy")
+    HC = HandChecker("files/saved_data.pickle",0.0001,"categorical_crossentropy","categorical_accuracy")
+    #
     #HC.GatherTrainingData()
     HC.CreateModel()
     HC.TrainModel()

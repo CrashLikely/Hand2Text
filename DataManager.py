@@ -3,9 +3,18 @@ import numpy as np
 from tensorflow import keras
 class DataManager:
     def __init__(self,path):
+        self.path = path
         self.df = pd.read_pickle(path)
-    def PrintData(self):
-        print(self.df)
+    def Save(self):
+        self.df.to_pickle(self.path)
+        print("Data saved")
+    def PrintData(self,num_vals):
+        for i in range(len(self.df)):
+            if(not num_vals):
+                print(f'value: {self.df["value"][i]} landmarks:{self.df["landmarks"][i]}')
+                print("")
+            else:
+                print(f'value:{self.df["value"][i]} num_value"{self.df["num_value"][i]}')
     def Scale(self,value):
         return value/26.0
     def ScaleDown(self):
@@ -15,6 +24,14 @@ class DataManager:
         for i in range(len(self.df)):
             self.df["num_value"][i] = (self.df["num_value"][i]/26.0)
     
+    def ManualEdit(self,column,find,change):
+        indexes=[]
+        for i in range(len(self.df)):
+            if(self.df[column][i]==find):
+                self.df[column][i]=change
+                indexes.append(i)
+        print(f'indexes:{indexes} changed from {find} to {change}')
+
     def GetLandmarks(self):
         '''
         Return training landmarks
@@ -61,7 +78,10 @@ class DataManager:
         array = np.zeros([26])
         array[value]=1.0
         return array
-
+    def CreateNumValues(self):
+        self.df["num_value"]=np.zeros(len(self.df))
+        for i in range(len(self.df)):
+            self.df['num_value'][i]=self.ProcessValue(self.df["value"][i])
     def GetValues(self):
         '''
         Return training Values
@@ -108,8 +128,11 @@ class DataManager:
 
 
 if __name__=="__main__":
-    dc = DataManager("files/saved_data.pickle")
-    dc.ScaleDown()
-    values = dc.GetValues()
-    print(values[8])
-    dc.PrintData()
+    dc = DataManager("files/validation_data.pickle")
+
+    dc.CreateNumValues()
+    dc.Save()
+    #dc.ScaleDown()
+    #values = dc.GetValues()
+    #print(values[8])
+    #dc.PrintData()
