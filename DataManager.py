@@ -124,14 +124,22 @@ class DataManager:
         if index==23:return("X")
         if index==24:return("Y")
         if index==25:return("Z")
-
+    def GetGreatestIndex(self,prediction):
+        greatest = -1000
+        index = 0
+        print(prediction[0])
+        for i in range(prediction.size):
+            if(prediction[i] > greatest):
+                greatest = prediction[i]
+                index = i
+        return index
 
 
 if __name__=="__main__":
     dc = DataManager("files/validation_data.pickle")
 
-    dc.CreateNumValues()
-    dc.Save()
+    #dc.CreateNumValues()
+    #dc.Save()
     #dc.ScaleDown()
     #values = dc.GetValues()
     #print(values[8])

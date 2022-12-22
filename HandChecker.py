@@ -84,13 +84,34 @@ class HandChecker:
         This method tests the model on the validation dataset and keeps track of bias in guesses. 
         Should also keep track of Correct Guesses vs False Ones and at the indexes that those occur (to see if it is better at guess some rather than others).
         '''
+        false = np.zeros(26)
+        true = np.zeros(26)
+        print(len(self.vald_landmarks))
+        print(self.vald_landmarks[0])
+        print(self.vald_values[0])
+        print(self.vald_landmarks[0].shape)
+        print(len(self.vald_landmarks))
+        for i in range(len(self.vald_landmarks)):
+            landmarks = self.vald_landmarks[i].reshape(-1,21,3)
+            y_pred = self.model.predict(landmarks)
+            pred_index = self.DM.GetGreatestIndex(y_pred[0])
+            true_index = self.DM.GetGreatestIndex(self.vald_values[i])
+            if pred_index==true_index:
+                true[true_index]+=1
+            else:
+                false[true_index]+=1
+        alphabet=["A","B","C","D","E","F","G","H","I","J","K","L","M","N","O","P","Q","R","S","T","U","V","W","X","Y","Z"]
+        for i in range(len(alphabet)):
+            print(f"{alphabet[i]}-- false:{false[i]} true:{true[i]}")
+        
     
 if __name__=="__main__":
     HC = HandChecker("files/saved_data.pickle",0.0001,"categorical_crossentropy","categorical_accuracy")
     #
     #HC.GatherTrainingData()
     HC.CreateModel()
-    HC.TrainModel()
-
+    #HC.TrainModel()
+    HC.LoadModel()
+    HC.ValidateModel()
 
 
