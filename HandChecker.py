@@ -7,8 +7,17 @@ import numpy as np
 data = pd.read_pickle("files/saved_data.pickle")
 
 data_values = data["value"]
-data_landmarks = tf.convert_to_tensor(data["landmarks"].values)
+data_landmarks = data["landmarks"] 
+
+
+
+print(data_landmarks.shape)
+print("DATA TYPES BABY!!!!")
 print(type(data_landmarks))
+print(type(data_landmarks[0]))
+print(data_landmarks[0].shape)
+print(type(data_landmarks[0][0]))
+print(data_landmarks[0][0].shape)
 #Model
 model = keras.Sequential(name="HandPoseChecker")
 model.add(layers.Flatten())

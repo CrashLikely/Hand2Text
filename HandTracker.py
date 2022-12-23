@@ -34,6 +34,7 @@ class HandTracker:
             cv2.waitKey(1)
     def record(self):
         while True:
+            self.landmarks = []
             success, img = self.cap.read()
             imgRGB = cv2.cvtColor(img,cv2.COLOR_BGR2RGB)
             results = self.hands.process(imgRGB)
@@ -55,6 +56,7 @@ class HandTracker:
                 cv2.destroyWindow("Image")
             if k == 27:
                 cv2.destroyAllWindows()
+
                 try:
                     value = input("What is the value of these coordinates? ")
                 except:
