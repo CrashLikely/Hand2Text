@@ -160,9 +160,15 @@ class DataCollector:
         # - Another model trained on the array of landmarks. 
 
         # So when the staticmodel detects an initial pose, activate recording mode and save the landmarks into an array for a given amount of time->time connected to initial pose. 
+
         # Once time is up stop recording into array and put that into the Dynamic model to predict what it is. This n-dimensional array may not be consistent throughout. 
         # (n,x,21,3)
+
         # 21 and 3 will be the same but for each pose there is going to be a different number of xs. 
+
+        # - need to collect 5 basic ASL poses to record
+            # Two hands? Having two hands currently works it just does the letter for the second one to come on. 
+            # Do one handed dynamic poses for now to keep things simple then try and add another hand
 
 if __name__=="__main__":
     DC = DataCollector()
