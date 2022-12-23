@@ -152,7 +152,17 @@ class DataCollector:
             cv2.imshow("Image",img)
             cv2.waitKey(1)
             
+    def RecordDynamicPoses(self):
+        '''
+        This function will be used to record dynamic poses. 
+        '''
+        #Set a boolean recording to true, while recording make an array of landmarks
+        # - Another model trained on the array of landmarks. 
 
+        # So when the staticmodel detects an initial pose, activate recording mode and save the landmarks into an array for a given amount of time->time connected to initial pose. 
+        # Once time is up stop recording into array and put that into the Dynamic model to predict what it is. This n-dimensional array may not be consistent throughout. 
+        # (n,x,21,3)
+        # 21 and 3 will be the same but for each pose there is going to be a different number of xs. 
 
 if __name__=="__main__":
     DC = DataCollector()
