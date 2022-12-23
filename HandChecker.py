@@ -87,7 +87,7 @@ class HandChecker:
         # plt.show()
 
     def LoadModel(self):
-        self.model.load_weights(self.model_loc)
+        self.model.load_weights(self.model_loc).expect_partial()
         return self.model
 
     def ValidateModel(self):

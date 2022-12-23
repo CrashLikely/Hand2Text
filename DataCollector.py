@@ -5,11 +5,11 @@ import numpy as np
 from HandChecker import HandChecker
 from DataManager import DataManager
 class DataCollector:
-    def __init__(self):
+    def __init__(self,confidence):
 
         self.HC = HandChecker("files/saved_data.pickle",.00001,"categorical_crossentropy","categorical_accuracy")
         self.HC.CreateModel(True)
-        self.DM = DataManager("files/saved_data.pickle")
+        self.DM = DataManager("files/saved_data.pickle",confidence)
         self.cap = cv2.VideoCapture(0)
         self.mpHands = mp.solutions.hands
         self.hands = self.mpHands.Hands(static_image_mode = False,max_num_hands=1,min_detection_confidence=0.5)
@@ -127,6 +127,8 @@ class DataCollector:
 
     def LiveFeed(self,visible):
         y_pred="Hand Not Detected"
+        letter =""
+        message=""
         while True:
             success, img = self.cap.read()
             imgRGB = cv2.cvtColor(img,cv2.COLOR_BGR2RGB)
@@ -147,14 +149,20 @@ class DataCollector:
                 landmarks=landmarks.reshape(-1,21,3)
                 y_pred = model.predict(self.DM.ProcessLandmarks(landmarks))
                 y_pred = self.DM.GetGreatest(y_pred)
-            cv2.putText(img,y_pred,(10,70),cv2.FONT_HERSHEY_PLAIN,3,(255,0,255),3)
-        
+                if y_pred:
+                    if letter != y_pred:
+                        letter = y_pred
+                        message += letter
+                        if (len(message)>15):
+                            message =""
+                    cv2.putText(img,y_pred,(10,70),cv2.FONT_HERSHEY_PLAIN,1,(255,0,255),3)
+                cv2.putText(img,message,(10,200),cv2.FONT_HERSHEY_PLAIN,2,(255,0,255),3)
             cv2.imshow("Image",img)
-            cv2.waitKey(1)
+            cv2.waitKey(500)
             
 
 
 if __name__=="__main__":
-    DC = DataCollector()
+    DC = DataCollector(0.99)
     #DC.TestData()
     DC.LiveFeed(True)
