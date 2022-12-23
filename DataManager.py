@@ -37,8 +37,8 @@ class DataManager:
         Return training landmarks
         '''
         return np.asarray(self.df["landmarks"].values.tolist())
-    def ProcessLandmarks(self,savePose):
-        return np.asarray(savePose["landmarks"])
+    def ProcessLandmarks(self,landmarks):
+        return np.asarray(landmarks)
 
     def ProcessValue(self,value):
         '''
@@ -86,6 +86,7 @@ class DataManager:
         '''
         Return training Values
         '''
+        self.CreateNumValues()
         temp = np.asarray(self.df["num_value"].values.tolist())
         values = []
         for i in range(len(temp)):
@@ -136,7 +137,7 @@ class DataManager:
 
 if __name__=="__main__":
     dc = DataManager("files/validation_data.pickle")
-    print(dc.GetGreatestIndex(dc.CreateValueArray(0.5769230769230769)))
+    #print(dc.GetGreatestIndex(dc.CreateValueArray(0.5769230769230769)))
     #dc.CreateNumValues()
     #dc.Save()
     #dc.ScaleDown()

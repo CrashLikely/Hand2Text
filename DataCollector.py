@@ -1,13 +1,15 @@
 import cv2,time,os
 import mediapipe as mp
 import pandas as pd
+import numpy as np
 from HandChecker import HandChecker
 from DataManager import DataManager
 class DataCollector:
     def __init__(self):
 
-        
-
+        self.HC = HandChecker("files/saved_data.pickle",.00001,"categorical_crossentropy","categorical_accuracy")
+        self.HC.CreateModel(True)
+        self.DM = DataManager("files/saved_data.pickle")
         self.cap = cv2.VideoCapture(0)
         self.mpHands = mp.solutions.hands
         self.hands = self.mpHands.Hands(static_image_mode = False,max_num_hands=1,min_detection_confidence=0.5)
@@ -109,25 +111,50 @@ class DataCollector:
                     print(df.head())
                     df.to_pickle(path)
 
-
     def TestData(self):
         '''
         Immediate testing of the data 
         '''
-        self.HC = HandChecker("files/saved_data.pickle",.00001,"categorical_crossentropy","categorical_accuracy")
-        self.HC.CreateModel()
-        self.DM = DataManager("files/saved_data.pickle")
         while True:
             savePose = self.Core()
             if(savePose != "None"):
                 model = self.HC.LoadModel()
-                y_pred = model.predict(self.DM.ProcessLandmarks(savePose))
+                y_pred = model.predict(self.DM.ProcessLandmarks(savePose["landmarks"]))
                 value = self.DM.ProcessValue(savePose["value"])
                 print(y_pred)
                 print(value)
                 print(self.DM.GetGreatest(y_pred))
 
+    def LiveFeed(self,visible):
+        y_pred="Hand Not Detected"
+        while True:
+            success, img = self.cap.read()
+            imgRGB = cv2.cvtColor(img,cv2.COLOR_BGR2RGB)
+            results = self.hands.process(imgRGB)
+            landmarks=[]
+            if results.multi_hand_landmarks:
+                for handLms in results.multi_hand_landmarks:
+                    for id, lm in enumerate(handLms.landmark):
+                        h,w,c = img.shape
+                        cx,cy,cz = int(lm.x *w), int(lm.y * h), int(lm.z*w)
+                        if(visible):
+                            cv2.circle(img,(cx,cy),3,(255,0,255),cv2.FILLED)
+                        landmarks.append([cx,cy,cz])
+                    if(visible):
+                        self.mpDraw.draw_landmarks(img,handLms,self.mpHands.HAND_CONNECTIONS)
+                model = self.HC.LoadModel()
+                landmarks=np.asarray(landmarks)
+                landmarks=landmarks.reshape(-1,21,3)
+                y_pred = model.predict(self.DM.ProcessLandmarks(landmarks))
+                y_pred = self.DM.GetGreatest(y_pred)
+            cv2.putText(img,y_pred,(10,70),cv2.FONT_HERSHEY_PLAIN,3,(255,0,255),3)
+        
+            cv2.imshow("Image",img)
+            cv2.waitKey(1)
+            
+
+
 if __name__=="__main__":
     DC = DataCollector()
-    DC.TestData()
-    #DC.CollectDataFromCamera("files/validation_data.pickle")
+    #DC.TestData()
+    DC.LiveFeed(True)
