@@ -164,5 +164,6 @@ class DataCollector:
 
 if __name__=="__main__":
     DC = DataCollector(0.99)
+    #DC.CollectDataFromCamera("files/saved_data.pickle")
     #DC.TestData()
     DC.LiveFeed(True)

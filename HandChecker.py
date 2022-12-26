@@ -14,8 +14,11 @@ class HandChecker:
         self.metrics = metrics
         self.DM = DataManager(path)
         self.valdDM = DataManager("files/validation_data.pickle")
-        
+        self.dev=False
     
+    def devMode(self,value):
+        self.dev = value
+
     def GatherTrainingData(self):
         self.data_values = self.DM.GetValues()
         self.data_landmarks = self.DM.GetLandmarks()
@@ -74,17 +77,18 @@ class HandChecker:
                 validation_data=(self.vald_landmarks,self.vald_values)
             )
         self.model.summary()
-        # plt.plot(history.history['categorical_accuracy'])
-        # plt.plot(history.history['val_categorical_accuracy'])
-        # plt.title('model accuracy')
-        # plt.ylabel('accuracy')
-        # plt.xlabel('epoch')
-        # plt.show()
-        # plt.plot(history.history['loss'])
-        # plt.title('model loss')
-        # plt.ylabel('loss')
-        # plt.xlabel('epoch')
-        # plt.show()
+        if(self.dev):
+            plt.plot(history.history['categorical_accuracy'])
+            plt.plot(history.history['val_categorical_accuracy'])
+            plt.title('model accuracy')
+            plt.ylabel('accuracy')
+            plt.xlabel('epoch')
+            plt.show()
+            plt.plot(history.history['loss'])
+            plt.title('model loss')
+            plt.ylabel('loss')
+            plt.xlabel('epoch')
+            plt.show()
 
     def LoadModel(self):
         self.model.load_weights(self.model_loc).expect_partial()
@@ -128,10 +132,10 @@ class HandChecker:
         false_values = list(data_false.values())
         
         print(f"Overall Validation score: {sum_true/(sum_true+sum_false)}")
-
-        #plt.bar(true_labels,true_values,color="green",width=0.8)
-        #plt.bar(false_labels,false_values,color="red",width=0.4)
-        #plt.show()
+        if(self.dev):
+            plt.bar(true_labels,true_values,color="green",width=0.8)
+            plt.bar(false_labels,false_values,color="red",width=0.4)
+            plt.show()
         
         return(sum_true/(sum_true+sum_false))
     
@@ -139,28 +143,29 @@ if __name__=="__main__":
     HC = HandChecker("files/saved_data.pickle",0.0001,"categorical_crossentropy","categorical_accuracy")
     #
     #HC.GatherTrainingData()
-
-    # HC.TrainModel(50)
-    # HC.LoadModel()
-    # HC.ValidateModel()
-    start = time.time()
-    epochs=[5,25,50,75,100]
-    averages=[]
-    times=[]
-    num=0
-    for epoch in epochs:
-        temp_sum=0.0
-        time_sum=0.0
-        for i in range(5):
-            HC.CreateModel(False)
-            start_time=time.time()
-            HC.TrainModel(500,epoch)
-            #HC.LoadModel()
-            temp_sum+=HC.ValidateModel()
-            temp_time=time.time()-start_time
-            time_sum+=temp_time
-        averages.append(temp_sum/5.0)
-        times.append(time_sum/5)
-    print(averages)
-    print(times)
-    print(f"total time: {time.time()-start}")
+    HC.devMode(True)
+    HC.CreateModel(True)
+    HC.TrainModel(750,25)
+    HC.LoadModel()
+    HC.ValidateModel()
+    # start = time.time()
+    # epochs=[5,25,50,75,100]
+    # averages=[]
+    # times=[]
+    # num=0
+    # for epoch in epochs:
+    #     temp_sum=0.0
+    #     time_sum=0.0
+    #     for i in range(5):
+    #         HC.CreateModel(False)
+    #         start_time=time.time()
+    #         HC.TrainModel(500,epoch)
+    #         #HC.LoadModel()
+    #         temp_sum+=HC.ValidateModel()
+    #         temp_time=time.time()-start_time
+    #         time_sum+=temp_time
+    #     averages.append(temp_sum/5.0)
+    #     times.append(time_sum/5)
+    # print(averages)
+    # print(times)
+    # print(f"total time: {time.time()-start}")

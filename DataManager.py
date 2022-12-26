@@ -32,7 +32,9 @@ class DataManager:
                 self.df[column][i]=change
                 indexes.append(i)
         print(f'indexes:{indexes} changed from {find} to {change}')
-
+    def ManualEditFromIndex(self,index,column,change):
+        print(f"Changing {self.df[column][index]} to {change} at {index}")
+        self.df[column][index]=change
     def GetLandmarks(self):
         '''
         Return training landmarks
@@ -140,10 +142,11 @@ class DataManager:
 
 
 if __name__=="__main__":
-    dc = DataManager("files/validation_data.pickle")
+    dc = DataManager("files/saved_data.pickle")
+    dc.ManualEditFromIndex(348,"value","V")
     #print(dc.GetGreatestIndex(dc.CreateValueArray(0.5769230769230769)))
     #dc.CreateNumValues()
-    #dc.Save()
+    dc.Save()
     #dc.ScaleDown()
     #values = dc.GetValues()
     #print(values[8])
