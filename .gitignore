@@ -1,6 +1,5 @@
 venv
 files
 images
-models
 ignore
 __pycache__
