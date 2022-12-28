@@ -95,6 +95,25 @@ class DataManager:
         for i in range(len(temp)):
             values.append(self.CreateValueArray(temp[i]))
         return np.asarray(values)
+    
+    def getConfidence(self,prediction):
+        confidences=[]
+        total = 0
+        greatest = 0
+        for i in range(len(prediction[0])):
+            total += prediction[0][i]
+        for i in range(len(prediction[0])):
+            confidences.append((prediction[0][i]/total))
+        for confidence in confidences:
+            differences = []
+            for i in range(len(prediction[0])):
+                differences.append(confidence-(prediction[0][i]/total))
+            diff_sum = sum(differences)
+            if (diff_sum/len(differences))>greatest:
+                greatest = diff_sum/len(differences)
+        return greatest
+
+
     def GetGreatest(self,prediction):
         greatest = -1000
         index = 0
@@ -102,7 +121,9 @@ class DataManager:
             if(prediction[0][i]>greatest):
                 greatest = prediction[0][i]
                 index = i
-        if(greatest>self.confidence):
+        confidence = self.getConfidence(prediction)
+        
+        if(confidence>self.confidence):
             if index==0:return("A")
             if index==1:return("B")
             if index==2:return("C")
@@ -130,6 +151,7 @@ class DataManager:
             if index==24:return("Y")
             if index==25:return("Z")
         else:
+            print(f"Not enough confidence: {confidence}")
             return(False)
     def GetGreatestIndex(self,prediction):
         greatest = -1000

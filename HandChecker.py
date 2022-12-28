@@ -145,7 +145,7 @@ if __name__=="__main__":
     #HC.GatherTrainingData()
     HC.devMode(True)
     HC.CreateModel(True)
-    HC.TrainModel(750,25)
+    #HC.TrainModel(750,25)
     HC.LoadModel()
     HC.ValidateModel()
     # start = time.time()
