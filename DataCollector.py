@@ -5,11 +5,11 @@ import numpy as np
 from HandChecker import HandChecker
 from DataManager import DataManager
 class DataCollector:
-    def __init__(self):
-
-        self.HC = HandChecker("files/saved_data.pickle",.00001,"categorical_crossentropy","categorical_accuracy")
-        self.HC.CreateModel(True)
-        self.DM = DataManager("files/saved_data.pickle")
+    def __init__(self,testing=True):
+        if(testing):
+            self.HC = HandChecker("files/saved_data.pickle",.00001,"categorical_crossentropy","categorical_accuracy")
+            self.HC.CreateModel(True)
+            self.DM = DataManager("files/saved_data.pickle")
         self.cap = cv2.VideoCapture(0)
         self.mpHands = mp.solutions.hands
         self.hands = self.mpHands.Hands(static_image_mode = False,max_num_hands=1,min_detection_confidence=0.5)
@@ -155,6 +155,7 @@ class DataCollector:
 
 
 if __name__=="__main__":
-    DC = DataCollector()
+    DC = DataCollector(False)
     #DC.TestData()
-    DC.LiveFeed(True)
+    DC.CollectDataFromCamera("files/saved_data.pickle")
+    #DC.LiveFeed(True)

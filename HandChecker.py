@@ -6,14 +6,17 @@ import numpy as np
 import matplotlib.pyplot as plt
 from DataManager import DataManager
 from keras.optimizers import SGD
-import time
+import os, time
 class HandChecker:
     def __init__(self,path,learning,loss,metrics):
+
         self.optimizer = SGD(lr=learning)
         self.loss = loss
         self.metrics = metrics
         self.DM = DataManager(path)
-        self.valdDM = DataManager("files/validation_data.pickle")
+        if(os.path.exists("files/validation_data.pickle")):
+            self.valdDM = DataManager("files/validation_data.pickle")
+
         
     
     def GatherTrainingData(self):
@@ -139,28 +142,28 @@ if __name__=="__main__":
     HC = HandChecker("files/saved_data.pickle",0.0001,"categorical_crossentropy","categorical_accuracy")
     #
     #HC.GatherTrainingData()
-
-    # HC.TrainModel(50)
-    # HC.LoadModel()
-    # HC.ValidateModel()
-    start = time.time()
-    epochs=[5,25,50,75,100]
-    averages=[]
-    times=[]
-    num=0
-    for epoch in epochs:
-        temp_sum=0.0
-        time_sum=0.0
-        for i in range(5):
-            HC.CreateModel(False)
-            start_time=time.time()
-            HC.TrainModel(500,epoch)
-            #HC.LoadModel()
-            temp_sum+=HC.ValidateModel()
-            temp_time=time.time()-start_time
-            time_sum+=temp_time
-        averages.append(temp_sum/5.0)
-        times.append(time_sum/5)
-    print(averages)
-    print(times)
-    print(f"total time: {time.time()-start}")
+    HC.CreateModel(True)
+    HC.TrainModel(500,25)
+    HC.LoadModel()
+    HC.ValidateModel()
+    # start = time.time()
+    # epochs=[5,25,50,75,100]
+    # averages=[]
+    # times=[]
+    # num=0
+    # for epoch in epochs:
+    #     temp_sum=0.0
+    #     time_sum=0.0
+    #     for i in range(5):
+    #         HC.CreateModel(False)
+    #         start_time=time.time()
+    #         HC.TrainModel(500,epoch)
+    #         #HC.LoadModel()
+    #         temp_sum+=HC.ValidateModel()
+    #         temp_time=time.time()-start_time
+    #         time_sum+=temp_time
+    #     averages.append(temp_sum/5.0)
+    #     times.append(time_sum/5)
+    # print(averages)
+    # print(times)
+    # print(f"total time: {time.time()-start}")

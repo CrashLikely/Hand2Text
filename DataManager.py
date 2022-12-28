@@ -137,6 +137,7 @@ class DataManager:
 
 if __name__=="__main__":
     dc = DataManager("files/validation_data.pickle")
+    dc.ManualEditIndex()
     #print(dc.GetGreatestIndex(dc.CreateValueArray(0.5769230769230769)))
     #dc.CreateNumValues()
     #dc.Save()
