@@ -24,7 +24,12 @@ class DataManager:
         '''
         for i in range(len(self.df)):
             self.df["num_value"][i] = (self.df["num_value"][i]/26.0)
-    
+    def merge(self,otherpath):
+        other = pd.read_pickle(otherpath)
+        print(other.head)
+        print(self.df.head)
+        new = pd.concat([self.df,other])
+        self.df = new
     def ManualEdit(self,column,find,change):
         indexes=[]
         for i in range(len(self.df)):
@@ -165,10 +170,13 @@ class DataManager:
 
 if __name__=="__main__":
     dc = DataManager("files/saved_data.pickle")
-    dc.ManualEditFromIndex(348,"value","V")
+    #dc.ManualEditFromIndex(348,"value","V")
+    dc.CreateNumValues()
+    dc.merge("files/saved_data[PC].pickle")
+    #dc.PrintData(True)
     #print(dc.GetGreatestIndex(dc.CreateValueArray(0.5769230769230769)))
     #dc.CreateNumValues()
-    dc.Save()
+    #dc.Save()
     #dc.ScaleDown()
     #values = dc.GetValues()
     #print(values[8])
