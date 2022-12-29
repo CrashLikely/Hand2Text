@@ -42,7 +42,7 @@ class HandChecker:
         self.model = keras.Sequential(name="HandPoseChecker")
         self.model.add(keras.layers.Dense(63,activation="relu",name="layer1",input_shape=(self.input_shape)))
         self.model.add(keras.layers.Flatten())
-        self.model.add(keras.layers.Dense(self.output_shape,activation="sigmoid",name="layer3"))
+        self.model.add(keras.layers.Dense(self.output_shape,activation="softmax",name="layer3"))
         self.model.compile(optimizer = self.optimizer,
             loss=self.loss,  
             metrics = [self.metrics])
@@ -141,13 +141,14 @@ class HandChecker:
     
 if __name__=="__main__":
     HC = HandChecker("files/saved_data.pickle",0.0001,"categorical_crossentropy","categorical_accuracy")
-    #
-    #HC.GatherTrainingData()
+    
+    HC.GatherTrainingData()
     HC.devMode(True)
     HC.CreateModel(True)
-    HC.TrainModel(750,100)
+    HC.TrainModel(400,75)
     HC.LoadModel()
     HC.ValidateModel()
+
     # start = time.time()
     # epochs=[5,25,50,75,100]
     # averages=[]

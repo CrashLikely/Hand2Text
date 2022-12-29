@@ -156,18 +156,18 @@ class DataCollector:
                         message += letter
                         if (len(message)>15):
                             message =""
-                    cv2.putText(img,y_pred,(10,70),cv2.FONT_HERSHEY_PLAIN,1,(255,0,255),3)
+                    cv2.putText(img,y_pred,(10,70),cv2.FONT_HERSHEY_PLAIN,2,(255,0,255),3)
                     cv2.putText(img,confidence,(120,70),cv2.FONT_HERSHEY_PLAIN,2,(0,255,0),3)
                 else:
                     letter = "!"
                 cv2.putText(img,message,(10,200),cv2.FONT_HERSHEY_PLAIN,2,(255,0,255),3)
             cv2.imshow("Image",img)
-            cv2.waitKey(750)
+            cv2.waitKey(100)
             
 
 
 if __name__=="__main__":
-    DC = DataCollector(99)
-   # DC.CollectDataFromCamera("files/saved_data.pickle")
+    DC = DataCollector(96)
+    #DC.CollectDataFromCamera("files/validation_data.pickle")
     #DC.TestData()
     DC.LiveFeed(True)
