@@ -109,13 +109,14 @@ class DataManager:
             total += prediction[0][i]
         for i in range(len(prediction[0])):
             confidences.append((prediction[0][i]/total))
+        
         for confidence in confidences:
             differences = []
             for i in range(len(prediction[0])):
                 differences.append(confidence-(prediction[0][i]/total))
             diff_sum = sum(differences)
-            if (diff_sum/len(differences))>greatest:
-                greatest = diff_sum/len(differences)
+            if (100-(abs((diff_sum/len(differences)))*100))>greatest:
+                greatest = (100-(abs(diff_sum/len(differences))*100))
         return greatest
 
 
@@ -129,35 +130,35 @@ class DataManager:
         confidence = self.getConfidence(prediction)
         
         if(confidence>self.confidence):
-            if index==0:return("A")
-            if index==1:return("B")
-            if index==2:return("C")
-            if index==3:return("D")
-            if index==4:return("E")
-            if index==5:return("F")
-            if index==6:return("G")
-            if index==7:return("H")
-            if index==8:return("I")
-            if index==9:return("J")
-            if index==10:return("K")
-            if index==11:return("L")
-            if index==12:return("M")
-            if index==13:return("N")
-            if index==14:return("O")
-            if index==15:return("P")
-            if index==16:return("Q")
-            if index==17:return("R")
-            if index==18:return("S")
-            if index==19:return("T")
-            if index==20:return("U")
-            if index==21:return("V")
-            if index==22:return("W")
-            if index==23:return("X")
-            if index==24:return("Y")
-            if index==25:return("Z")
+            if index==0:return("A",confidence)
+            if index==1:return("B",confidence)
+            if index==2:return("C",confidence)
+            if index==3:return("D",confidence)
+            if index==4:return("E",confidence)
+            if index==5:return("F",confidence)
+            if index==6:return("G",confidence)
+            if index==7:return("H",confidence)
+            if index==8:return("I",confidence)
+            if index==9:return("J",confidence)
+            if index==10:return("K",confidence)
+            if index==11:return("L",confidence)
+            if index==12:return("M",confidence)
+            if index==13:return("N",confidence)
+            if index==14:return("O",confidence)
+            if index==15:return("P",confidence)
+            if index==16:return("Q",confidence)
+            if index==17:return("R",confidence)
+            if index==18:return("S",confidence)
+            if index==19:return("T",confidence)
+            if index==20:return("U",confidence)
+            if index==21:return("V",confidence)
+            if index==22:return("W",confidence)
+            if index==23:return("X",confidence)
+            if index==24:return("Y",confidence)
+            if index==25:return("Z",confidence)
         else:
             print(f"Not enough confidence: {confidence}")
-            return(False)
+            return(False,confidence)
     def GetGreatestIndex(self,prediction):
         greatest = -1000
         index = 0
