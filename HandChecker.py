@@ -9,7 +9,8 @@ from keras.optimizers import SGD
 import time
 class HandChecker:
     def __init__(self,path,learning,loss,metrics):
-        self.optimizer = SGD(lr=learning)
+        #self.optimizer = SGD(lr=learning)
+        self.optimizer = "Adam"
         self.loss = loss
         self.metrics = metrics
         self.DM = DataManager(path)
