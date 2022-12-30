@@ -66,7 +66,7 @@ Press escape to save coordinates and input a letter value (caps only)
 In terminal press crtl+c to exit data collection.
 
 Coordinates are stored in an array of length n with shape (n, 21, 3). This is what is inputted into the model for training/predicting.
-The values are set to a number value (A=1, Z=26), divided by 26, multiplied by 26 minus 1 and that value is the index of an array that is set to 1 (this is a redundant system please stop). This is what the outputs are trained on.
+The values are set to a number value (A=1, Z=26), divided by 26, multiplied by 26 minus 1 and that value is the index of an array that is set to 1 (this is a redundant system that probably needs to change but it works so I'm not gonna worry about it rn). This is what the outputs are trained on.
 
 ### Class Setup
 
