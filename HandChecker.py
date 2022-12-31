@@ -8,14 +8,17 @@ from DataManager import DataManager
 from keras.optimizers import SGD
 import time
 class HandChecker:
-    def __init__(self,path,learning,loss,metrics):
+    def __init__(self,path,vald_path,learning,loss,metrics,TD=False):
         #self.optimizer = SGD(lr=learning)
         self.optimizer = "Adam"
         self.loss = loss
         self.metrics = metrics
         self.DM = DataManager(path)
-        self.valdDM = DataManager("files/validation_data.pickle")
+        self.valdDM = DataManager(vald_path)
         self.dev=False
+        if TD:
+            self.coords=2
+        else: self.coords=3
     
     def devMode(self,value):
         self.dev = value
@@ -110,7 +113,7 @@ class HandChecker:
         print(self.vald_landmarks[0].shape)
         print(len(self.vald_landmarks))
         for i in range(len(self.vald_landmarks)):
-            landmarks = self.vald_landmarks[i].reshape(-1,21,3)
+            landmarks = self.vald_landmarks[i].reshape(-1,21,self.coords)
             y_pred = self.model.predict(landmarks)
             pred_index = self.DM.GetGreatestIndex(y_pred[0])
             true_index = self.DM.GetGreatestIndex(self.vald_values[i])
@@ -141,7 +144,7 @@ class HandChecker:
         return(sum_true/(sum_true+sum_false))
     
 if __name__=="__main__":
-    HC = HandChecker("files/saved_data.pickle",0.0001,"categorical_crossentropy","categorical_accuracy")
+    HC = HandChecker("files/saved_data.pickle","files/validation_data.pickle",0.0001,"categorical_crossentropy","categorical_accuracy",TD=False)
     
     HC.GatherTrainingData()
     HC.devMode(True)

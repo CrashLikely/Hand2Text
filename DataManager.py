@@ -16,6 +16,11 @@ class DataManager:
                 print("")
             else:
                 print(f'value:{self.df["value"][i]} num_value"{self.df["num_value"][i]}')
+    def WriteToFile(self,num_vals=True):
+        f = open("2D_vald_values.txt","a")
+        for i in range(len(self.df)):
+            f.write(f"index: {i} value {self.df['value'][i]} num_value{self.df['num_value'][i]}\n")
+        f.close()
     def Scale(self,value):
         return value/26.0
     def ScaleDown(self):
@@ -37,6 +42,9 @@ class DataManager:
                 self.df[column][i]=change
                 indexes.append(i)
         print(f'indexes:{indexes} changed from {find} to {change}')
+    def DeleteIndex(self,index):
+        self.df.drop(index)
+        print(f"{index} dropped")
     def ManualEditFromIndex(self,index,column,change):
         print(f"Changing {self.df[column][index]} to {change} at {index}")
         self.df[column][index]=change
@@ -89,7 +97,13 @@ class DataManager:
     def CreateNumValues(self):
         self.df["num_value"]=np.zeros(len(self.df))
         for i in range(len(self.df)):
-            self.df['num_value'][i]=self.ProcessValue(self.df["value"][i])
+            try:
+                self.df['num_value'][i]=self.ProcessValue(self.df["value"][i])
+            except TypeError as e:
+                print(f"Error at index {i}. ")
+                #print(self.df["value"][i])
+                print(e)
+
     def GetValues(self):
         '''
         Return training Values
@@ -170,14 +184,20 @@ class DataManager:
 
 
 if __name__=="__main__":
-    dc = DataManager("files/validation_data.pickle")
-    #dc.ManualEditFromIndex(348,"value","V")
+    dc = DataManager("files/2D_data.pickle")
+    
+    
     dc.CreateNumValues()
+    dc.Save()
+    #dc.CreateNumValues()
+
+    #dc.PrintData(False)
+    #dc.CreateNumValues()
     #dc.merge("files/saved_data[PC].pickle")
     #dc.PrintData(True)
     #print(dc.GetGreatestIndex(dc.CreateValueArray(0.5769230769230769)))
     #dc.CreateNumValues()
-    dc.Save()
+    #dc.Save()
     #dc.ScaleDown()
     #values = dc.GetValues()
     #print(values[8])
