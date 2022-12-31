@@ -1,6 +1,7 @@
 venv
-files
+files/Graphs
+files/saved_data.csv
+files/saved_data[OLD].pickle
 images
-models
 ignore
 __pycache__

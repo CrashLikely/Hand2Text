@@ -2,8 +2,9 @@ import pandas as pd
 import numpy as np
 from tensorflow import keras
 class DataManager:
-    def __init__(self,path):
+    def __init__(self,path,confidence=0.8):
         self.path = path
+        self.confidence=confidence
         self.df = pd.read_pickle(path)
     def Save(self):
         self.df.to_pickle(self.path)
@@ -15,6 +16,11 @@ class DataManager:
                 print("")
             else:
                 print(f'value:{self.df["value"][i]} num_value"{self.df["num_value"][i]}')
+    def WriteToFile(self,num_vals=True):
+        f = open("2D_vald_values.txt","a")
+        for i in range(len(self.df)):
+            f.write(f"index: {i} value {self.df['value'][i]} num_value{self.df['num_value'][i]}\n")
+        f.close()
     def Scale(self,value):
         return value/26.0
     def ScaleDown(self):
@@ -23,7 +29,12 @@ class DataManager:
         '''
         for i in range(len(self.df)):
             self.df["num_value"][i] = (self.df["num_value"][i]/26.0)
-    
+    def merge(self,otherpath):
+        other = pd.read_pickle(otherpath)
+        print(other.head)
+        print(self.df.head)
+        new = pd.concat([self.df,other])
+        self.df = new
     def ManualEdit(self,column,find,change):
         indexes=[]
         for i in range(len(self.df)):
@@ -31,7 +42,12 @@ class DataManager:
                 self.df[column][i]=change
                 indexes.append(i)
         print(f'indexes:{indexes} changed from {find} to {change}')
-
+    def DeleteIndex(self,index):
+        self.df.drop(index)
+        print(f"{index} dropped")
+    def ManualEditFromIndex(self,index,column,change):
+        print(f"Changing {self.df[column][index]} to {change} at {index}")
+        self.df[column][index]=change
     def GetLandmarks(self):
         '''
         Return training landmarks
@@ -81,7 +97,13 @@ class DataManager:
     def CreateNumValues(self):
         self.df["num_value"]=np.zeros(len(self.df))
         for i in range(len(self.df)):
-            self.df['num_value'][i]=self.ProcessValue(self.df["value"][i])
+            try:
+                self.df['num_value'][i]=self.ProcessValue(self.df["value"][i])
+            except TypeError as e:
+                print(f"Error at index {i}. ")
+                #print(self.df["value"][i])
+                print(e)
+
     def GetValues(self):
         '''
         Return training Values
@@ -92,6 +114,26 @@ class DataManager:
         for i in range(len(temp)):
             values.append(self.CreateValueArray(temp[i]))
         return np.asarray(values)
+    
+    def getConfidence(self,prediction):
+        confidences=[]
+        total = 0
+        greatest = 0
+        for i in range(len(prediction[0])):
+            total += prediction[0][i]
+        for i in range(len(prediction[0])):
+            confidences.append((prediction[0][i]/total))
+        
+        for confidence in confidences:
+            differences = []
+            for i in range(len(prediction[0])):
+                differences.append(confidence-(prediction[0][i]/total))
+            diff_sum = sum(differences)
+            if (100-(abs((diff_sum/len(differences)))*100))>greatest:
+                greatest = (100-(abs(diff_sum/len(differences))*100))
+        return greatest
+
+
     def GetGreatest(self,prediction):
         greatest = -1000
         index = 0
@@ -99,32 +141,38 @@ class DataManager:
             if(prediction[0][i]>greatest):
                 greatest = prediction[0][i]
                 index = i
-        if index==0:return("A")
-        if index==1:return("B")
-        if index==2:return("C")
-        if index==3:return("D")
-        if index==4:return("E")
-        if index==5:return("F")
-        if index==6:return("G")
-        if index==7:return("H")
-        if index==8:return("I")
-        if index==9:return("J")
-        if index==10:return("K")
-        if index==11:return("L")
-        if index==12:return("M")
-        if index==13:return("N")
-        if index==14:return("O")
-        if index==15:return("P")
-        if index==16:return("Q")
-        if index==17:return("R")
-        if index==18:return("S")
-        if index==19:return("T")
-        if index==20:return("U")
-        if index==21:return("V")
-        if index==22:return("W")
-        if index==23:return("X")
-        if index==24:return("Y")
-        if index==25:return("Z")
+        confidence = self.getConfidence(prediction)
+        
+        if(confidence>self.confidence):
+            if index==0:return("A",confidence)
+            if index==1:return("B",confidence)
+            if index==2:return("C",confidence)
+            if index==3:return("D",confidence)
+            if index==4:return("E",confidence)
+            if index==5:return("F",confidence)
+            if index==6:return("G",confidence)
+            if index==7:return("H",confidence)
+            if index==8:return("I",confidence)
+            if index==9:return("J",confidence)
+            if index==10:return("K",confidence)
+            if index==11:return("L",confidence)
+            if index==12:return("M",confidence)
+            if index==13:return("N",confidence)
+            if index==14:return("O",confidence)
+            if index==15:return("P",confidence)
+            if index==16:return("Q",confidence)
+            if index==17:return("R",confidence)
+            if index==18:return("S",confidence)
+            if index==19:return("T",confidence)
+            if index==20:return("U",confidence)
+            if index==21:return("V",confidence)
+            if index==22:return("W",confidence)
+            if index==23:return("X",confidence)
+            if index==24:return("Y",confidence)
+            if index==25:return("Z",confidence)
+        else:
+            print(f"Not enough confidence: {confidence}")
+            return(False,confidence)
     def GetGreatestIndex(self,prediction):
         greatest = -1000
         index = 0
@@ -136,12 +184,4 @@ class DataManager:
 
 
 if __name__=="__main__":
-    dc = DataManager("files/validation_data.pickle")
-    dc.ManualEditIndex()
-    #print(dc.GetGreatestIndex(dc.CreateValueArray(0.5769230769230769)))
-    #dc.CreateNumValues()
-    #dc.Save()
-    #dc.ScaleDown()
-    #values = dc.GetValues()
-    #print(values[8])
-    #dc.PrintData()
+  print("Nice")

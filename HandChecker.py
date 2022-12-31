@@ -8,17 +8,21 @@ from DataManager import DataManager
 from keras.optimizers import SGD
 import os, time
 class HandChecker:
-    def __init__(self,path,learning,loss,metrics):
-
-        self.optimizer = SGD(lr=learning)
+    def __init__(self,path,vald_path,learning,loss,metrics,TD=False):
+        #self.optimizer = SGD(lr=learning)
+        self.optimizer = "Adam"
         self.loss = loss
         self.metrics = metrics
         self.DM = DataManager(path)
-        if(os.path.exists("files/validation_data.pickle")):
-            self.valdDM = DataManager("files/validation_data.pickle")
-
-        
+        self.valdDM = DataManager(vald_path)
+        self.dev=False
+        if TD:
+            self.coords=2
+        else: self.coords=3
     
+    def devMode(self,value):
+        self.dev = value
+
     def GatherTrainingData(self):
         self.data_values = self.DM.GetValues()
         self.data_landmarks = self.DM.GetLandmarks()
@@ -42,7 +46,7 @@ class HandChecker:
         self.model = keras.Sequential(name="HandPoseChecker")
         self.model.add(keras.layers.Dense(63,activation="relu",name="layer1",input_shape=(self.input_shape)))
         self.model.add(keras.layers.Flatten())
-        self.model.add(keras.layers.Dense(self.output_shape,activation="sigmoid",name="layer3"))
+        self.model.add(keras.layers.Dense(self.output_shape,activation="softmax",name="layer3"))
         self.model.compile(optimizer = self.optimizer,
             loss=self.loss,  
             metrics = [self.metrics])
@@ -77,20 +81,21 @@ class HandChecker:
                 validation_data=(self.vald_landmarks,self.vald_values)
             )
         self.model.summary()
-        # plt.plot(history.history['categorical_accuracy'])
-        # plt.plot(history.history['val_categorical_accuracy'])
-        # plt.title('model accuracy')
-        # plt.ylabel('accuracy')
-        # plt.xlabel('epoch')
-        # plt.show()
-        # plt.plot(history.history['loss'])
-        # plt.title('model loss')
-        # plt.ylabel('loss')
-        # plt.xlabel('epoch')
-        # plt.show()
+        if(self.dev):
+            plt.plot(history.history['categorical_accuracy'])
+            plt.plot(history.history['val_categorical_accuracy'])
+            plt.title('model accuracy')
+            plt.ylabel('accuracy')
+            plt.xlabel('epoch')
+            plt.show()
+            plt.plot(history.history['loss'])
+            plt.title('model loss')
+            plt.ylabel('loss')
+            plt.xlabel('epoch')
+            plt.show()
 
     def LoadModel(self):
-        self.model.load_weights(self.model_loc)
+        self.model.load_weights(self.model_loc).expect_partial()
         return self.model
 
     def ValidateModel(self):
@@ -108,7 +113,7 @@ class HandChecker:
         print(self.vald_landmarks[0].shape)
         print(len(self.vald_landmarks))
         for i in range(len(self.vald_landmarks)):
-            landmarks = self.vald_landmarks[i].reshape(-1,21,3)
+            landmarks = self.vald_landmarks[i].reshape(-1,21,self.coords)
             y_pred = self.model.predict(landmarks)
             pred_index = self.DM.GetGreatestIndex(y_pred[0])
             true_index = self.DM.GetGreatestIndex(self.vald_values[i])
@@ -131,21 +136,23 @@ class HandChecker:
         false_values = list(data_false.values())
         
         print(f"Overall Validation score: {sum_true/(sum_true+sum_false)}")
-
-        #plt.bar(true_labels,true_values,color="green",width=0.8)
-        #plt.bar(false_labels,false_values,color="red",width=0.4)
-        #plt.show()
+        if(self.dev):
+            plt.bar(true_labels,true_values,color="green",width=0.8)
+            plt.bar(false_labels,false_values,color="red",width=0.4)
+            plt.show()
         
         return(sum_true/(sum_true+sum_false))
     
 if __name__=="__main__":
-    HC = HandChecker("files/saved_data.pickle",0.0001,"categorical_crossentropy","categorical_accuracy")
-    #
-    #HC.GatherTrainingData()
+    HC = HandChecker("files/saved_data.pickle","files/validation_data.pickle",0.0001,"categorical_crossentropy","categorical_accuracy",TD=False)
+    
+    HC.GatherTrainingData()
+    HC.devMode(True)
     HC.CreateModel(True)
-    HC.TrainModel(500,25)
+    HC.TrainModel(400,75)
     HC.LoadModel()
     HC.ValidateModel()
+
     # start = time.time()
     # epochs=[5,25,50,75,100]
     # averages=[]
