@@ -180,7 +180,7 @@ class DataCollector:
 
 
 if __name__=="__main__":
-    DC = DataCollector(96,path="files/2D_data.pickle",vald_path="files/2D_vald_data.pickle")
-    #DC.CollectDataFromCamera("files/2D_vald_data.pickle",True)
+    DC = DataCollector(96,path="files/saved_data.pickle",vald_path="files/valdidation_data.pickle")
+    #DC.CollectDataFromCamera("files/valdidation_data.pickle")
     #DC.TestData()
-    DC.LiveFeed(True,True)
+    DC.LiveFeed(True)

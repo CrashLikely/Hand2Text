@@ -6,7 +6,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from DataManager import DataManager
 from keras.optimizers import SGD
-import time
+import os, time
 class HandChecker:
     def __init__(self,path,vald_path,learning,loss,metrics,TD=False):
         #self.optimizer = SGD(lr=learning)

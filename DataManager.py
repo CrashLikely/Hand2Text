@@ -184,21 +184,4 @@ class DataManager:
 
 
 if __name__=="__main__":
-    dc = DataManager("files/2D_data.pickle")
-    
-    
-    dc.CreateNumValues()
-    dc.Save()
-    #dc.CreateNumValues()
-
-    #dc.PrintData(False)
-    #dc.CreateNumValues()
-    #dc.merge("files/saved_data[PC].pickle")
-    #dc.PrintData(True)
-    #print(dc.GetGreatestIndex(dc.CreateValueArray(0.5769230769230769)))
-    #dc.CreateNumValues()
-    #dc.Save()
-    #dc.ScaleDown()
-    #values = dc.GetValues()
-    #print(values[8])
-    #dc.PrintData()
+  print("Nice")
